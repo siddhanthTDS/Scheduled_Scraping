@@ -1,0 +1,29 @@
+name: Daily Keep-Alive Commit
+
+on:
+  schedule:           # runs every day at 07:15 UTC
+    - cron: "15 7 * * *"
+  workflow_dispatch:  # allows manual trigger
+
+jobs:
+  keepalive:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write     # needed to push a commit
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # step name **must contain your email**
+      - name: Daily ping by 22f1000662@ds.study.iitm.ac.in
+        run: |
+          echo "Last run: $(date -u)" > .daily-ping.txt
+
+      - name: Commit and push change
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add .daily-ping.txt
+          git commit --allow-empty -m "Automated daily commit [skip ci]"
+          git push
